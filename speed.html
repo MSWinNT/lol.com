@@ -37,36 +37,51 @@
     </div>
 
     <script>
-        const video = document.getElementById('v');
-        const display = document.getElementById('s');
-        const grid = document.getElementById('g');
-        const loadBtn = document.getElementById('loadBtn');
+    const video = document.getElementById('v');
+    const display = document.getElementById('s');
+    const grid = document.getElementById('g');
+    const loadBtn = document.getElementById('loadBtn');
 
-        function initPlayer() {
-            video.load(); // Force iOS to fetch the video source
-            loadBtn.style.display = 'none'; // Hide load button after tap
-            generateButtons();
+    function initPlayer() {
+        video.load();
+        loadBtn.style.display = 'none';
+        generateButtons();
+    }
+
+    function setSpeed(rate, btn) {
+        video.playbackRate = rate;
+        display.innerText = rate.toFixed(3).replace(/0+$/, '').replace(/\.$/, '');
+        document.querySelectorAll('.grid button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+
+    function generateButtons() {
+        grid.innerHTML = '';
+
+        // --- NEW BUTTON BEFORE 0.20x ---
+        const btnLow = document.createElement('button');
+        btnLow.innerText = "0.125x";
+        btnLow.onclick = () => setSpeed(0.125, btnLow);
+        grid.appendChild(btnLow);
+
+        // Existing range 0.20 → 4.00
+        for (let i = 0.2; i <= 4.01; i += 0.05) {
+            const r = Math.round(i * 100) / 100;
+            const btn = document.createElement('button');
+            btn.innerText = r.toFixed(2) + 'x';
+            if (r === 1.0) btn.classList.add('active');
+            btn.onclick = () => setSpeed(r, btn);
+            grid.appendChild(btn);
         }
 
-        function setSpeed(rate, btn) {
-            video.playbackRate = rate;
-            display.innerText = rate.toFixed(2);
-            document.querySelectorAll('.grid button').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-        }
-
-        function generateButtons() {
-            grid.innerHTML = ''; // Clear existing
-            for (let i = 0.2; i <= 4.01; i += 0.05) {
-                const r = Math.round(i * 100) / 100;
-                const btn = document.createElement('button');
-                btn.innerText = r.toFixed(2) + 'x';
-                if (r === 1.0) btn.classList.add('active');
-                btn.onclick = () => setSpeed(r, btn);
-                grid.appendChild(btn);
-            }
-        }
-    </script>
+        // --- NEW BUTTON AFTER 4.00x ---
+        const btnHigh = document.createElement('button');
+        btnHigh.innerText = "8.00x";
+        btnHigh.onclick = () => setSpeed(8.0, btnHigh);
+        grid.appendChild(btnHigh);
+    }
+</script>
 </body>
 
 </html>
+
