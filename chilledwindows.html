@@ -1,1 +1,87 @@
-b
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>iOS Speed Controller</title>
+    <style>
+        body { font-family: -apple-system, sans-serif; background: #000; color: #fff; text-align: center; padding: 15px; margin: 0; }
+        .video-container { width: 100%; max-width: 500px; margin: 0 auto; }
+        video { width: 100%; border-radius: 8px; background: #222; display: block; }
+        .speed-display { font-size: 1.2rem; margin: 15px 0; color: #007aff; }
+        .grid { 
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; 
+            background: #1c1c1e; padding: 10px; border-radius: 10px; 
+            max-height: 250px; overflow-y: auto; -webkit-overflow-scrolling: touch;
+        }
+        button { 
+            padding: 12px 2px; font-size: 13px; background: #2c2c2e; color: #fff; 
+            border: 1px solid #3a3a3c; border-radius: 6px; -webkit-appearance: none;
+        }
+        .active { background: #007aff; border-color: #007aff; }
+        #loadBtn { background: #32d74b; color: #000; font-weight: bold; width: 100%; padding: 15px; margin-bottom: 10px; border-radius: 8px; }
+    </style>
+</head>
+<body>
+
+    <div class="video-container">
+        <!-- Manual Load Button for iOS stability -->
+        <button id="loadBtn" onclick="initPlayer()">TAP TO LOAD VIDEO & CONTROLS</button>
+
+        <video id="v" controls playsinline webkit-playsinline preload="auto">
+            <source src="https://cdn.hobune.stream/files/channels-cdn/Enderman%20%28UCWb-66XSFCV5vgKEbl22R6Q%29/20191208%20-%20Windows%2010%20fake%20bootscreen%20-%20beZjJNLUzIU.mp4" type="video/mp4">
+        </video>
+
+        <div class="speed-display">Speed: <span id="s">1.00</span>x</div>
+        <div class="grid" id="g"></div>
+    </div>
+
+    <script>
+    const video = document.getElementById('v');
+    const display = document.getElementById('s');
+    const grid = document.getElementById('g');
+    const loadBtn = document.getElementById('loadBtn');
+
+    function initPlayer() {
+        video.load();
+        loadBtn.style.display = 'none';
+        generateButtons();
+    }
+
+    function setSpeed(rate, btn) {
+        video.playbackRate = rate;
+        display.innerText = rate.toFixed(3).replace(/0+$/, '').replace(/\.$/, '');
+        document.querySelectorAll('.grid button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+
+    function generateButtons() {
+        grid.innerHTML = '';
+
+        // --- NEW BUTTON BEFORE 0.20x ---
+        const btnLow = document.createElement('button');
+        btnLow.innerText = "0.125x";
+        btnLow.onclick = () => setSpeed(0.125, btnLow);
+        grid.appendChild(btnLow);
+
+        // Existing range 0.20 → 4.00
+        for (let i = 0.2; i <= 4.01; i += 0.05) {
+            const r = Math.round(i * 100) / 100;
+            const btn = document.createElement('button');
+            btn.innerText = r.toFixed(2) + 'x';
+            if (r === 1.0) btn.classList.add('active');
+            btn.onclick = () => setSpeed(r, btn);
+            grid.appendChild(btn);
+        }
+
+        // --- NEW BUTTON AFTER 4.00x ---
+        const btnHigh = document.createElement('button');
+        btnHigh.innerText = "8.00x";
+        btnHigh.onclick = () => setSpeed(8.0, btnHigh);
+        grid.appendChild(btnHigh);
+    }
+</script>
+</body>
+
+</html>
+
